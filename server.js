@@ -2,24 +2,6 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const express = require('express');
 const app = express();
-var mysql  = require('mysql');
-
-var dbenv = "GCPDB";
-if (dbenv == "localDB"){
-  // Local DB setup
-  var config = require('./config.js');
-}
-if (dbenv == "GCPDB"){
-  // GCP DB setup
-  var config = {
-      user: process.env.SQL_USER,
-      database: process.env.SQL_DATABASE,
-      password: process.env.SQL_PASSWORD
-  }
-  if (process.env.INSTANCE_CONNECTION_NAME && process.env.NODE_ENV === 'production') {
-      config.socketPath = `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`;
-  }
-}
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/views/form.html'));
@@ -40,27 +22,7 @@ app.post('/submit', (req, res) => {
     message
   });
 
-  // insert statment
-  let connection = mysql.createConnection(config);
-  //console.log('INSERT INTO guests(name,message) VALUES (\'' + name + '\',\'' + message + '\')');
-  //let sqlSnippet = 'INSERT INTO guests(name,message) VALUES (\'' + name + '\',\'' + message + '\');';
-
-  // execute the insert statment
-  connection.query("INSERT INTO guests(name,message) VALUES (?, ?)",
-    [
-     name,
-     message
-    ],
-    function(error, results) {
-
-    }
 );
-
-  //connection.query(sqlSnippet);
-
-
-  // close connection
-  connection.end();
 
   //res.send('Thanks for your message!');
   res.sendFile(path.join(__dirname, '/views/formConfirmation.html'));
